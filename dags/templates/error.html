@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Atlanta Flight Delay Prediction System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+        }
+        .error-container {
+            border: 1px solid #ff0000;
+            padding: 20px;
+            background-color: #ffe6e6;
+            color: #ff0000;
+        }
+        .error-header {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .error-message {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-header">An Error Occurred</div>
+        <div class="error-message">{{ message }}</div>
+        <a href="{{ url_for('index') }}">Back to Home</a>
+    </div>
+</body>
+</html>

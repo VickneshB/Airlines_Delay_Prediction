@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 2em;
+        }
+        .prediction {
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
+        .delayed {
+            color: red;
+        }
+        .early, .on-time {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Flight Delay Prediction Result</h1>
+        <p>Prediction Type: {{ prediction_type | capitalize }} Delay</p>
+        <p class="prediction {% if predicted_delay > 0 %}delayed{% elif predicted_delay < 0 %}early{% else %}on-time{% endif %}">
+            {% if predicted_delay > 0 %}
+                Prediction: Delayed by {{ predicted_delay }} minutes
+            {% elif predicted_delay < 0 %}
+                Prediction: Early by {{ predicted_delay|abs }} minutes
+            {% else %}
+                Prediction: On Time
+            {% endif %}
+        </p>
+    </div>
+</body>
+</html>

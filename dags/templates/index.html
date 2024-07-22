@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlanta Flight Delay Prediction System</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        form {
+            display: inline-block;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            margin: 0;
+        }
+        .radio-group input[type="radio"] {
+            margin-right: 5px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Atlanta Flight Delay Prediction System</h1>
+        <form action="{{ url_for('predict') }}" method="POST">
+            <label for="prediction_type">Delay Prediction Type:</label>
+            <div class="radio-group">
+                <label for="arrival">
+                    <input type="radio" id="arrival" name="prediction_type" value="arrival" onclick="toggleFields('arrival')" required>
+                    Arrival
+                </label>
+                <label for="departure">
+                    <input type="radio" id="departure" name="prediction_type" value="departure" onclick="toggleFields('departure')">
+                    Departure
+                </label>
+            </div>
+
+            <label for="flight_date">Flight Date:</label>
+            <input type="date" id="flight_date" name="flight_date" required>
+
+            <label for="origin">Flight Origin:</label>
+            <select id="origin" name="origin" required></select>
+            <span id="origin_bold" style="display: none; font-weight: bold;">ATL</span>
+
+            <label for="destination">Flight Destination:</label>
+            <select id="destination" name="destination" required></select>
+            <span id="destination_bold" style="display: none; font-weight: bold;">ATL</span>
+
+            <label for="flight_number">Flight Number:</label>
+            <input type="text" id="flight_number" name="flight_number" pattern="[0-9]*" required>
+
+            <label for="carrier_code">Carrier Code:</label>
+            <input type="text" id="carrier_code" name="carrier_code" pattern="[A-Za-z]{2}" required>
+
+            <label for="actual_time" id="actual_time_label">Actual Arrival/Departure Time (hhmm):</label>
+            <input type="text" id="actual_time" name="actual_time" pattern="([01]\d|2[0-3])[0-5]\d" required>
+
+            <label for="departure_delay" id="departure_delay_label" style="display:none;">Departure Delay (minutes):</label>
+            <input type="number" id="departure_delay" name="departure_delay" style="display:none;" min="0">
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    
+    <script>
+        const ourAirport = "{{ our_airport }}";
+        const otherAirports = {{ other_airports | tojson }};
+
+        function toggleFields(type) {
+            const originSelect = document.getElementById('origin');
+            const destinationSelect = document.getElementById('destination');
+            const originBold = document.getElementById('origin_bold');
+            const destinationBold = document.getElementById('destination_bold');
+            const actualTimeLabel = document.getElementById('actual_time_label');
+            const departureDelayLabel = document.getElementById('departure_delay_label');
+            const departureDelayInput = document.getElementById('departure_delay');
+
+            actualTimeLabel.textContent = type === 'arrival' ? 'Actual Arrival Time (hhmm):' : 'Actual Departure Time (hhmm):';
+
+            if (type === 'arrival') {
+                originSelect.style.display = 'block';
+                originSelect.required = true;
+                destinationSelect.style.display = 'none';
+                destinationSelect.required = false;
+                destinationBold.style.display = 'inline';
+                originBold.style.display = 'none';
+                populateSelect(originSelect, otherAirports);
+
+                departureDelayLabel.style.display = 'block';
+                departureDelayInput.style.display = 'block';
+                departureDelayInput.required = true;
+            } else {
+                originSelect.style.display = 'none';
+                originSelect.required = false;
+                destinationSelect.style.display = 'block';
+                destinationSelect.required = true;
+                originBold.style.display = 'inline';
+                destinationBold.style.display = 'none';
+                populateSelect(destinationSelect, otherAirports);
+
+                departureDelayLabel.style.display = 'none';
+                departureDelayInput.style.display = 'none';
+                departureDelayInput.required = false;
+            }
+        }
+
+        function populateSelect(selectElement, options) {
+            selectElement.innerHTML = '';
+            options.forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option;
+                opt.textContent = option;
+                selectElement.appendChild(opt);
+            });
+        }
+    </script>
+</body>
+</html>
