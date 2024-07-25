@@ -89,3 +89,9 @@ Defines the Docker image for the project:
 ### License
 
 This project is licensed under the MIT License.
+
+# Team Members
+
+1. [Harish Krishnamoorthy Murali](https://github.com/HarishKMurali)
+2. [Simranpal Kaur](https://github.com/sandhusimran017)
+3. [Vicknesh Balabaskaran](https://github.com/VickneshB)
