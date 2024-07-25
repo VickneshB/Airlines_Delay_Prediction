@@ -37,7 +37,7 @@ This project uses Flask and Airflow to create a web application for predicting f
 
 3. Build and start the Docker containers:
     ```sh
-    docker-compose up --build
+    docker-compose up -d --build
     ```
 
 ### Accessing the Application
