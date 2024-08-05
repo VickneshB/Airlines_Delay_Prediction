@@ -59,10 +59,14 @@
         button:hover {
             background-color: #45a049;
         }
+        .info {
+            color: red;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <p class="info">Processing time is less than 15 seconds.</p>
         <h1>Atlanta Flight Delay Prediction System</h1>
         <form action="{{ url_for('predict') }}" method="POST">
             <label for="prediction_type">Delay Prediction Type:</label>

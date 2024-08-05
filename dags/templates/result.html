@@ -27,6 +27,9 @@
             font-size: 1.5em;
             margin-top: 20px;
         }
+        .info {
+            color: blue;
+        }
         .delayed {
             color: red;
         }
@@ -37,6 +40,9 @@
 </head>
 <body>
     <div class="container">
+        {% if default is true %}
+            <p class="info">Since the flight number and Carrier code provided did not match out records. This prediction is based on the default values</p>
+        {% endif %}
         <h1>Flight Delay Prediction Result</h1>
         <p>Prediction Type: {{ prediction_type | capitalize }} Delay</p>
         <p class="prediction {% if predicted_delay > 0 %}delayed{% elif predicted_delay < 0 %}early{% else %}on-time{% endif %}">

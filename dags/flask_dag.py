@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, flash
+from flask import Flask, request, jsonify, render_template
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
@@ -95,7 +95,7 @@ def predict():
 
     combined_dest = s3.get_object(Bucket=s3_bucket, Key=s3_key_dest)
     combined_dest_data = pd.read_csv(combined_dest['Body'])
-    
+
     try:
         prediction_type = request.form.get('prediction_type')
         origin = request.form.get('origin')
@@ -105,7 +105,6 @@ def predict():
 
         actual_time = request.form.get('actual_time')
         flight_date = request.form.get('flight_date')
-        flash("Processing.... The Results should be ready in a few seconds", "info")
 
         app.logger.info(f"Received form data: prediction_type={prediction_type}, origin={origin}, destination={destination}, flight_number={flight_number}, actual_time={actual_time}, flight_date={flight_date}")
 
@@ -138,14 +137,14 @@ def predict():
         
         if prediction_type == 'arrival':
             departure_delay = int(request.form.get('departure_delay'))
-            features = get_features(flight_number, carrier_code, prediction_type, 
+            features, default = get_features(flight_number, carrier_code, prediction_type, 
                                     day_of_week, day, month, year, combined_dest_data, 
                                     departure_delay=departure_delay, origin=origin)
 
             desired_order_list = [ 'ActualElapsedTime', 'AirTime', 'DepDelay', 'CRSElapsedTime', 'Cancelled', 'DayOfWeek', 'DayofMonth', 'DepTime', 'Origin', 'Distance', 'FlightNum', 'Month', 'UniqueCarrier', 'Year', 'CRSArrTime_hrs', 'CRSArrTime_mins', 'CRSDepTime_hrs', 'CRSDepTime_mins']
             features = {k: features[k] for k in desired_order_list}
         else:
-            features = get_features(flight_number, carrier_code, prediction_type, 
+            features, default = get_features(flight_number, carrier_code, prediction_type, 
                                     day_of_week, day, month, year, combined_org_data, 
                                     destination=destination, actual_time=actual_time)
 
@@ -161,7 +160,7 @@ def predict():
         
         app.logger.info(f"Predicted delay: {predicted_delay}")
 
-        return render_template('result.html', prediction_type=prediction_type, predicted_delay=predicted_delay)
+        return render_template('result.html', prediction_type=prediction_type, predicted_delay=predicted_delay, default=default)
     except Exception as e:
         app.logger.error(f"Error during prediction: {str(e)}")
         return render_template('error.html', message=f"Error during prediction: {str(e)}")
@@ -172,6 +171,8 @@ def get_features(flight_number, carrier_code, prediction_type,
                 departure_delay=None, origin=None, destination=None, actual_time=None):
     
     filtered_df = csv[(csv['FlightNum'] == flight_number) & (csv['UniqueCarrier'] == carrier_code)]
+
+    default = False
 
     if not filtered_df.empty:
         
@@ -221,6 +222,7 @@ def get_features(flight_number, carrier_code, prediction_type,
             })
 
     else:
+        default = True
         if origin:
             destination = 'ATL'
         else:
@@ -260,7 +262,7 @@ def get_features(flight_number, carrier_code, prediction_type,
                 'Dest': destination,
             })
     
-    return features
+    return features, default
 
 with DAG('prediction_dag', default_args=default_args, schedule_interval=timedelta(days=1), catchup=False) as dag:
     
